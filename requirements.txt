@@ -18,7 +18,6 @@ backcall==0.2.0
 beautifulsoup4==4.12.2
 bleach==6.0.0
 blinker==1.8.2
-boltons @ file:///C:/ci_311/boltons_1677729932371/work
 brotlipy==0.7.0
 cachetools==5.3.3
 cattrs==23.2.3
