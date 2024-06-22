@@ -7,6 +7,7 @@ import sys
 import io
 import pandas as pd
 
+os.environ['GROQ_API_KEY']="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"
 def f_preguntar():
     pass #st.title("####1")
     
@@ -30,7 +31,7 @@ def main():
     )
     # The title and greeting message of the Streamlit application
     st.title("Chatea con el gran astrologo Tairot!")
-    st.write("Saludos consultante, Soy el Gran Tairot, un astrologo visionario que puede responder preguntas profundas de tu vida interpretando tu carta natal.")
+    #st.write("Saludos consultante, Soy el Gran Tairot, un astrologo visionario que puede responder preguntas profundas de tu vida interpretando tu carta natal.")
     st.write("<- Completa tus datos de nacimiento primero!")
 
     # Add customization options to the sidebar
@@ -53,19 +54,35 @@ def main():
     #memory = ConversationBufferWindowMemory(k=conversational_memory_length, memory_key="chat_history", return_messages=True)
     message = None
     if 'userq' in st.session_state:
-        print("#2")
+        #print("#2")
         message = st.session_state.userq
         st.session_state.userq = ""
 
-    print("#3",type(fecha_cons))
-    user_question = st.text_input("Que quieres preguntar?:",on_change=f_preguntar,key = "userq")
+    # session state variable
+    if 'chat_history' not in st.session_state:
+        #print("#99")
+        st.session_state.chat_history=[{"role": "assistant", "content": "Saludos consultante. Soy el Gran Tairot, un astrologo visionario que puede responder preguntas profundas de tu vida interpretando tu carta natal."}]
+    #print("#44",type(st.session_state.chat_history),st.session_state.chat_history)
+
+    if user_question := st.chat_input(disabled=False):
+        print("#4",user_question)
+        st.session_state.chat_history.append({"role": "user", "content": user_question})
+        #with st.chat_message("user"):
+        #    st.write(user_question)
+            
+
+
+
+
+    #print("#3",type(fecha_cons))
+    #user_question = st.text_input("Que quieres preguntar?:",on_change=f_preguntar,key = "userq")
     #print("#4",user_question)
     #message = user_question
     
 
 
-    if message:
-        st.session_state.chat_history.append(message)
+    if st.session_state.chat_history[-1]["role"] != "assistant":
+        
 
         # Create a kerykeion instance:
         # Args: Name, year, month, day, hour, minuts, city, nation(optional)
@@ -90,25 +107,19 @@ def main():
         sys.stdout = original_stdout
 
         reporte = salida_como_string
-        print("#1", reporte)
+        #print("#1", reporte)
 
         messages = [
-    {"role": "system", "content": """You are an agent with the role of playing as a character in a fantasy RPG game. 
+    {"role": "system", "content": f"""You are an agent with the role of playing as a character in a fantasy RPG game. 
     You are the great Tairot, a mystical astrologer who can answer questions to consultants using a given astrological birth chart, don´t make calculations just use the provided chart report.
+    You are having a consultation with a user. Justify your answer and use the data from the report to reason your answer, don't do calculations. (answer in spanish, ATENCION RESPONDE SIEMPRE EN ESPAÑOL!!)
+                    The consultant's astrology birth chart: {reporte}
     """},
  
         ]
-        for i,msg in enumerate(st.session_state.chat_history):
-            role = "user" if i % 2 == 0 else "assistant"
-            if role == "user":
-                contenido = f""" {msg} .justify your answer and use the data from the report to reason your answer, don't do calculations.
-                    my astrology birth chart:
-                    {reporte}
-                     (answer in spanish)"""
-            else:
-                contenido = msg
-            
-            messages.append({"role": role, "content": contenido})
+        for msg in st.session_state.chat_history:
+            messages.append(msg)
+               
 
 
         #st.title("####2")
@@ -123,15 +134,15 @@ def main():
         )
 
         
-        st.session_state.chat_history.append(chat_completion.choices[0].message.content)
+        st.session_state.chat_history.append({"role": "assistant", "content": chat_completion.choices[0].message.content})
+            
         
-    # session state variable
-    if 'chat_history' not in st.session_state:
-        st.session_state.chat_history=[]
-    else:
-        for message in st.session_state.chat_history:
-            st.write(message)
 
+    # Display or clear chat messages
+    for msx in st.session_state.chat_history:
+        print("#3",type(msx),msx)
+        with st.chat_message(msx["role"]):
+            st.write(msx["content"])
 
 
 if __name__ == "__main__":
