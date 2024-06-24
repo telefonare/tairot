@@ -7,7 +7,7 @@ import sys
 import io
 import pandas as pd
 
-os.environ['GROQ_API_KEY']="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"
+#os.environ['GROQ_API_KEY']="xxx"
 def f_preguntar():
     pass #st.title("####1")
     
